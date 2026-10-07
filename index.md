@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -58,7 +59,19 @@ h1,h2,h3,.num{font-family:Montserrat,system-ui,sans-serif;text-wrap:balance;marg
 
 /* PIONERAS */
 .pioneer{padding-block:48px 8px}
-.pioneer-box{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px;display:grid;grid-template-columns:1fr;gap:24px}
+.pioneer-box{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:0;overflow:hidden}
+.pioneer-box summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 28px}
+.pioneer-box summary::-webkit-details-marker{display:none}
+.pioneer-box summary:hover{background:var(--chip)}
+.pioneer-box summary:focus-visible{outline:3px solid var(--cyan);outline-offset:-3px}
+.ps-mini{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.ps-mini span{background:var(--chip);color:var(--chip-ink);border-radius:999px;padding:3px 10px;font:700 12px Montserrat,sans-serif}
+.pioneer-box[open] .ps-mini{display:none}
+.chev{flex:none;width:40px;height:40px;border-radius:50%;background:var(--navy);display:grid;place-items:center;transition:transform .25s}
+.chev svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.pioneer-box[open] .chev{transform:rotate(180deg)}
+.pbody{padding:16px 28px 28px;display:flex;flex-direction:column;gap:20px}
+.pbody p{margin:0!important}
 .pioneer .eyebrow{color:var(--cyan)}
 .pioneer h2{font-size:clamp(22px,3vw,30px);font-weight:800;color:var(--ink);margin-top:10px}
 .pioneer p{color:var(--muted);margin:12px 0 0;max-width:52ch}
@@ -172,14 +185,20 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
 
 <section class="pioneer">
   <div class="wrap">
-    <div class="pioneer-box">
-      <div>
-        <div class="eyebrow">Reconocimiento</div>
-        <h2>Gracias a las primeras Farmacias Escuela certificadas</h2>
+    <details class="pioneer-box" id="pioneerBox">
+      <summary>
+        <div class="ps-text">
+          <div class="eyebrow">Reconocimiento</div>
+          <h2>Primeras Farmacias Escuela en certificarse</h2>
+          <div class="ps-mini" id="pioneerMini"></div>
+        </div>
+        <span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+      </summary>
+      <div class="pbody">
         <p>Reconocemos el esfuerzo y el compromiso de los equipos que abrieron el camino. Su trabajo fue la base para que hoy la red crezca en los tres países.</p>
+        <div class="pstats" id="pioneers"></div>
       </div>
-      <div class="pstats" id="pioneers"></div>
-    </div>
+    </details>
   </div>
 </section>
 
@@ -277,6 +296,7 @@ $("#countries").innerHTML = Object.keys(COUNTRIES).map(k=>`
     <div class="go">${LOCKED[k] ? 'Listado disponible próximamente' : Object.keys(COUNTRIES[k].areas).length+' '+COUNTRIES[k].areaLabel.toLowerCase()+'s · <b>Ver tiendas →</b>'}</div>
   </button>`).join("");
 
+$("#pioneerMini").innerHTML = Object.keys(PIONEERS).map(k=>`<span>${COUNTRIES[k].name} · ${PIONEERS[k].length}</span>`).join("") + `<span>Ver tiendas</span>`;
 $("#pioneers").innerHTML = Object.keys(PIONEERS).map(k=>`
   <div class="pstat"><div class="ph"><div class="num">${PIONEERS[k].length}</div><span>${COUNTRIES[k].name}</span></div>
     <ul class="plist">${PIONEERS[k].map(n=>`<li>${n}</li>`).join("")}</ul></div>`).join("");
