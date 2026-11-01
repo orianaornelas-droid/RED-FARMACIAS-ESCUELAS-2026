@@ -39,7 +39,12 @@ h1,h2,h3,.num{font-family:Montserrat,system-ui,sans-serif;text-wrap:balance;marg
 .hero h1{font-size:clamp(32px,6vw,58px);font-weight:900;line-height:1.02;margin-top:14px;max-width:14ch}
 .hero h1 span{color:#5CC6F2}
 .lead{font-size:clamp(16px,2vw,19px);max-width:58ch;margin:18px 0 0;color:#D6E6F7}
-.date{display:inline-flex;gap:10px;align-items:center;margin-top:22px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 16px;font:700 14px Montserrat,sans-serif}
+.date{display:inline-flex;flex-direction:column;gap:6px;margin-top:22px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:12px 18px;font:500 14px Montserrat,sans-serif}
+.date .dl{font:800 11px Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#7FD3F7}
+.date ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.date li{display:flex;align-items:center;gap:8px}
+.date li::before{content:"";width:7px;height:7px;border-radius:50%;background:#5CC6F2;flex:none}
+.date b{font-weight:800}
 .date i{width:8px;height:8px;border-radius:50%;background:#5CC6F2;display:block}
 
 .total{display:flex;align-items:flex-end;gap:14px;margin-top:40px}
@@ -191,7 +196,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
     <div class="eyebrow">Capacitación · Vicepresidencia de RR.HH.</div>
     <h1>Actualizamos nuestras <span>Farmacias Escuelas</span></h1>
     <p class="lead">Como parte de nuestra mejora continua, ya somos <b id="leadTotal">81</b> Farmacias Escuelas en <span id="leadCountries">Venezuela</span>: las tiendas donde formamos a nuestros equipos con el estándar Farmatodo. Conoce cuáles son las nuevas Farmacias Escuelas en tu país y en tu área.</p>
-    <div class="date"><i></i><span id="fecha">Venezuela: vigentes a partir del 6 de octubre de 2026</span></div>
+    <div class="date"><span class="dl">Vigencia</span><ul id="fecha"><li><b>Venezuela:</b> desde el 6 de octubre de 2026</li><li><b>Argentina:</b> desde el 22 de octubre de 2026</li></ul></div>
 
     <div class="total">
       <div class="num" id="total">121</div>
@@ -385,6 +390,13 @@ const ADDR = {"Luzmar":["CHACAO - AV. FCO. DE MIRANDA","AV. FCO. DE MIRANDA, LOC
   "El Samán":["SAN FELIPE - AV. ARTURO USLAR PIETRI","AV. ARTURO USLAR PIETRI, ENTRE PRIMERA Y SEGUNDA ENTRADA AL BARRIO LAS MADRES MUN. INDEPEN"],
   "Manglar":["TUCACAS","CARRETERA NACIONAL MORÓN-CORO, SECTOR FEDERICO ECKOUTH, TUCACAS EDO. FALCÓN"],
   "Estrella Marina":["PUERTO CABELLO - URB. CUMBOTO NORTE","URBANIZACIÓN RESIDENCIAL CUMBOTO, PARCELAS A Y B, MUNICIPIO PUERTO CABELLO, EDO. CARABOBO"]};  // ubicación corta y dirección completa (Venezuela)
+const ADDR_AR = {
+  "Soria":["PILAR","AV. LUIS LAGOMARSINO 1910, B1630 PILAR, PROVINCIA DE BUENOS AIRES"],
+  "Alesel":["SAN ISIDRO","BLANCO ENCALADA 2486, B1609 BOULOGNE, PROVINCIA DE BUENOS AIRES"],
+  "Las Heras":["CABA","AV. LAS HERAS 3700, CIUDAD AUTÓNOMA DE BUENOS AIRES"],
+  "Botánico":["PALERMO, CABA","AV. STA. FE 3601, C1425BGY, CIUDAD AUTÓNOMA DE BUENOS AIRES"]
+};  // ubicación corta y dirección completa (Argentina)
+const getAddr = (k,s) => k==="ve" ? ADDR[s] : k==="ar" ? ADDR_AR[s] : null;
 /* ============================================ */
 
 const PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L1.5 12H5v10h5.5v-6h3v6H19V12h3.5z"/></svg>';
@@ -424,9 +436,9 @@ function hl(name,q){
 
 const MAPI = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>';
 function storeItem(s,q,k){
-  const a = k==="ve" ? ADDR[s] : null;
+  const a = getAddr(k,s);
   if(!a || !a[0]) return `<li><div class="st"><span class="sn">${hl(s,q)}</span></div></li>`;
-  const maps = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Farmatodo " + s + ", " + a[1] + ", Venezuela");
+  const maps = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Farmatodo " + s + ", " + a[1] + ", " + COUNTRIES[k].name);
   return `<li><div class="st"><span class="sn">${hl(s,q)}</span><span class="sa">${a[0]}</span>
     <div class="full" hidden>${a[1]}<a href="${maps}" target="_blank" rel="noopener">Ver en Google Maps →</a></div></div>
     <button class="mapbtn" type="button" aria-expanded="false" aria-label="Ver dirección completa de ${s}" title="Ver dirección completa">${MAPI}</button></li>`;
@@ -453,7 +465,7 @@ function render(){
     let f = list;
     if(q){
       if(isNum) f = q.replace(/\D/g,"")===String(a) ? list : [];
-      else f = norm("area "+a).includes(q) ? list : list.filter(s=>norm(s).includes(q) || (current==="ve" && ADDR[s] && norm(ADDR[s].join(" ")).includes(q)));
+      else f = norm("area "+a).includes(q) ? list : list.filter(s=>norm(s).includes(q) || (getAddr(current,s) && norm(getAddr(current,s).join(" ")).includes(q)));
     }
     if(!f.length) return "";
     shown += f.length; areasShown++;
@@ -498,5 +510,6 @@ if(!start){ try{ start = localStorage.getItem("fe-country") }catch(e){} }
 current = COUNTRIES[start] && !LOCKED[start] ? start : "ve";
 render();
 </script>
+
 </body>
 </html>
